@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      author: e.urvach
+      id: add-tag-001
+      changes:
+        - tagDatabase:
+            tag: v-001
+  - include:
+      file: v-0-0-1-CHANGES/Create_table_users.sql
+      relativeToChangelogFile: true
+  - include:
+      file: v-0-0-1-CHANGES/Create_table_cards.sql
+      relativeToChangelogFile: true
+  - include:
+      file: v-0-0-1-CHANGES/Create_table_user_roles.sql
+      relativeToChangelogFile: true
+  - include:
+      file: v-0-0-1-CHANGES/Create_table_history.sql
+      relativeToChangelogFile: true
+  - include:
+      file: v-0-0-1-CHANGES/Update_history_table.sql
+      relativeToChangelogFile: true
