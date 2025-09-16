@@ -1,14 +1,16 @@
 package com.example.bankcards.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
 
 import java.math.BigDecimal;
 
 @Getter
 @Setter
-@ToString
+@Builder
+@Jacksonized
 public class TransferDto {
 
     private Long fromCardId;

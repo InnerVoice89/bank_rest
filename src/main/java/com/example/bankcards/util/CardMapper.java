@@ -31,14 +31,16 @@ public class CardMapper {
                 .last4(cardDto.getLast4())
                 .build();
     }
+
     public static ShowCardDto cardToShowCard(Card card) {
-        return ShowCardDto.builder()
-                .cardNumberMask(makeMaskToCard(card.getLast4()))
-                .ownerName(card.getOwner().getSurname() + " " + card.getOwner().getName().charAt(0))
-                .balance(card.getBalance())
-                .status(card.getStatus())
-                .expirationDate(YearMonth.of(card.getExpiryYear(), card.getExpiryMonth()))
-                .build();
+            return ShowCardDto.builder()
+                    .cardNumberMask(makeMaskToCard(card.getLast4()))
+                    .ownerName(card.getOwner().getSurname() + " " + card.getOwner().getName().charAt(0))
+                    .balance(card.getBalance())
+                    .status(card.getStatus())
+                    .expirationDate(YearMonth.of(card.getExpiryYear(), card.getExpiryMonth()))
+                    .build();
+
     }
 
     public static ShowCardToAdmin cardToAdminCard(Card card) {
@@ -46,7 +48,7 @@ public class CardMapper {
                 .cardId(card.getCardId())
                 .cardNumberMask(makeMaskToCard(card.getLast4()))
                 .ownerName(card.getOwner().getSurname() + " " + card.getOwner().getName().charAt(0))
-                .owner(UserMapper.toDto(card.getOwner()) )
+                .owner(UserMapper.toDto(card.getOwner()))
                 .balance(card.getBalance())
                 .status(card.getStatus())
                 .expiryYear(card.getExpiryYear())

@@ -73,7 +73,7 @@ public class UserServ {
         return newBalance;
     }
 
-    private static BigDecimal validateAndCalculateNewBalance(BigDecimal amount, Card cardFrom, Card cardTo) {
+    public static BigDecimal validateAndCalculateNewBalance(BigDecimal amount, Card cardFrom, Card cardTo) {
         BigDecimal newBalance = cardFrom.getBalance().subtract(amount).setScale(2,
                 RoundingMode.HALF_UP);
         if (cardFrom.getStatus() != Card.Status.ACTIVE) {

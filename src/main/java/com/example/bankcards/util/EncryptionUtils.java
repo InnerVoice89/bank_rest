@@ -14,13 +14,15 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-@RequiredArgsConstructor
 @Component
 public class EncryptionUtils {
-    @Value("${encryption.key}")
-    private String secretKey;
+    private final String secretKey;
 
-    public  String encrypt(String cardNumber) throws NoSuchPaddingException,
+    public EncryptionUtils(@Value("${encryption.key}") String secretKey){
+        this.secretKey=secretKey;
+    }
+
+    public String encrypt(String cardNumber) throws NoSuchPaddingException,
             NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         Cipher cipher = Cipher.getInstance("AES");
         SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
@@ -34,7 +36,7 @@ public class EncryptionUtils {
             SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
             return new String(cipher.doFinal(Base64.getDecoder().decode(cardNumber)));
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new EncryptionException("Ошибка расшифровки карты");
         }
     }
