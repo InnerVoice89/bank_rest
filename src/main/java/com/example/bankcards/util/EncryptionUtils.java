@@ -14,6 +14,10 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+/**
+ * Класс шифрования и дешифрования номера карты
+ */
+
 @Component
 public class EncryptionUtils {
     private final String secretKey;

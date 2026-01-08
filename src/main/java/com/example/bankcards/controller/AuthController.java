@@ -1,6 +1,8 @@
 package com.example.bankcards.controller;
 
 import com.example.bankcards.service.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -17,12 +19,19 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
+@Tag(
+        name="Контроллер аутентификации"
+)
 public class AuthController {
 
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
     @PostMapping("/login")
+    @Operation(
+            summary = "Сервис Jwt аутентификации пользователя"
+    )
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate

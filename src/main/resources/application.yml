@@ -19,6 +19,8 @@ spring:
     change-log: db/changelog/db.changelog-master.yaml
     enabled: true
 logging:
+  file:
+    name: ${LOGGING_FILE_NAME:/var/log/myapp/app.log}
   level:
     root: INFO
     com.example.bankcards: DEBUG

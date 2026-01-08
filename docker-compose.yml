@@ -8,6 +8,8 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    volumes:
+      - app-logs:/var/log/myapp
 
   db:
     image: postgres:17-alpine
@@ -16,8 +18,10 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_DB: bank_rest
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: pass
     volumes:
       - ./base_data:/var/lib/postgresql/data
 
+volumes:
+  app-logs:

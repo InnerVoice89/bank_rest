@@ -13,6 +13,10 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+/**
+ * Сервис для генерации токена и извлечения информации из токена
+ */
+
 @Component
 @RequiredArgsConstructor
 public class JwtService {

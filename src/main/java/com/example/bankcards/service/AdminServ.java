@@ -61,18 +61,22 @@ public class AdminServ {
         Card editCard = cardsRepository.findByCardId(editStatus.getCardId()).orElseThrow(
                 () -> new RuntimeException("Карта не найдена"));
         editCard.setStatus(editStatus.getStatus());
+        cardsRepository.save(editCard);
+        cardsRepository.flush();
     }
 
     @Transactional
     public String deleteCardById(long id) {
-        Card deletedCard = cardsRepository.findByCardId(id).orElseThrow(() -> new RuntimeException("Карта не найдена"));
+        Card deletedCard = cardsRepository.findByCardId(id).orElseThrow(()
+                -> new CardNotFoundException("Карта не найдена"));
         cardsRepository.delete(deletedCard);
         return deletedCard.getLast4();
     }
 
     @Transactional
     public String deleteUser(long id) {
-        User deletedUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        User deletedUser = userRepository.findById(id).orElseThrow(() ->
+                new UserNotFoundException("Пользователь не найден"));
         userRepository.delete(deletedUser);
         return deletedUser.getUsername();
     }

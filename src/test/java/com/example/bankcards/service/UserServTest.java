@@ -8,13 +8,10 @@ import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.CardsRepository;
 import com.example.bankcards.repository.HistoryRepository;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -27,12 +24,16 @@ import static org.testng.Assert.assertTrue;
 
 public class UserServTest {
 
-    @Mock
-    private CardsRepository cardsRepository;
-    @Mock
-    private HistoryRepository historyRepository;
-    @InjectMocks
-    private UserServ userServ;
+//    Пришлось изолировать моки из-за их конфликтов,добавив в каждый тест
+
+//    @Mock
+//    private CardsRepository cardsRepository;
+//    @Mock
+//    private HistoryRepository historyRepository;
+//    @InjectMocks
+//    private UserServ userServ;
+//    @Mock
+//    private ValidateCardService validateCardService;
 
     @BeforeMethod
     public void setUp() {
@@ -47,13 +48,13 @@ public class UserServTest {
         SecurityContextHolder.setContext(context);
     }
 
-    @AfterMethod
-    public void tearDown() {
-        SecurityContextHolder.clearContext();
-    }
-
     @Test
     public void testGetCardById() {
+        CardsRepository cardsRepository = mock(CardsRepository.class);
+        HistoryRepository historyRepository = mock(HistoryRepository.class);
+        ValidateCardService validateCardService = mock(ValidateCardService.class);
+        UserServ userServ = new UserServ(cardsRepository, historyRepository, validateCardService);
+
         User owner = User.builder().name("Ivan").surname("Sidorov").build();
         Card card = new Card();
         card.setOwner(owner);
@@ -68,6 +69,11 @@ public class UserServTest {
     //Позитивный сценарий перевода на карту другого пользователя
     @Test
     public void transferToOtherCardsTest() {
+        CardsRepository cardsRepository = mock(CardsRepository.class);
+        HistoryRepository historyRepository = mock(HistoryRepository.class);
+        ValidateCardService validateCardService = mock(ValidateCardService.class);
+
+        UserServ userServ = new UserServ(cardsRepository, historyRepository, validateCardService);
         BigDecimal amount = BigDecimal.valueOf(100.0);
         TransferDto transfer = TransferDto.builder()
                 .fromCardId(1L).toCardId(22L).amount(amount).build();
@@ -80,6 +86,8 @@ public class UserServTest {
 
         when(cardsRepository.findByCardIdAndOwnerId(1L, 1L)).thenReturn(Optional.of(cardFrom));
         when(cardsRepository.findByCardId(anyLong())).thenReturn(Optional.of(cardTo));
+        doNothing().when(validateCardService).validateExpireDate(cardTo);
+        doNothing().when(validateCardService).validateExpireDate(cardFrom);
 
         BigDecimal newBalance = userServ.makeTransferToOtherCard(transfer);
         assertTrue(newBalance.compareTo(BigDecimal.valueOf(400)) == 0);
@@ -89,6 +97,11 @@ public class UserServTest {
     //Попытка перевести на свою карту
     @Test(expectedExceptions = RuntimeException.class)
     public void transferToOtherCardsExTest() {
+        CardsRepository cardsRepository = mock(CardsRepository.class);
+        HistoryRepository historyRepository = mock(HistoryRepository.class);
+        ValidateCardService validateCardService = mock(ValidateCardService.class);
+
+        UserServ userServ = new UserServ(cardsRepository, historyRepository, validateCardService);
         BigDecimal amount = BigDecimal.valueOf(100.0);
         TransferDto transfer = TransferDto.builder()
                 .fromCardId(1L).toCardId(22L).amount(amount).build();
@@ -101,6 +114,8 @@ public class UserServTest {
 
         when(cardsRepository.findByCardIdAndOwnerId(1L, 1L)).thenReturn(Optional.of(cardFrom));
         when(cardsRepository.findByCardId(anyLong())).thenReturn(Optional.of(cardTo));
+        doNothing().when(validateCardService).validateExpireDate(cardTo);
+        doNothing().when(validateCardService).validateExpireDate(cardFrom);
         userServ.makeTransferToOtherCard(transfer);
     }
 

@@ -14,19 +14,19 @@ import static org.testng.Assert.assertEquals;
 
 public class EncryptionTest {
 
+    /**
+     *  Тест на корректность шифрования и дешифрования номера карты
+     */
 
     @Test
     public void encryptionTest() throws NoSuchPaddingException,
             IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException,
             InvalidKeyException {
         EncryptionUtils encryptionUtils = new EncryptionUtils("my-super-secret-encryption-key-1");
-        String original = "1234";
-
+        String original = "1234567812345678";
         String encrypt = encryptionUtils.encrypt(original);
         String decrypt = encryptionUtils.decrypt(encrypt);
         assertEquals(original, decrypt);
-
-
     }
 
 

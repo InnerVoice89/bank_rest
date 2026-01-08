@@ -6,6 +6,7 @@ import com.example.bankcards.dto.UserDetailsImpl;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.History;
 import com.example.bankcards.exception.CardNotFoundException;
+import com.example.bankcards.exception.ValidateCardException;
 import com.example.bankcards.repository.CardsRepository;
 import com.example.bankcards.repository.HistoryRepository;
 import com.example.bankcards.util.CardMapper;
@@ -26,6 +27,7 @@ public class UserServ {
 
     private final CardsRepository cardsRepository;
     private final HistoryRepository historyRepository;
+    private final ValidateCardService validateCardService;
 
     @Transactional(readOnly = true)
     public List<ShowCardDto> getAllCards() {
@@ -40,12 +42,14 @@ public class UserServ {
         return CardMapper.cardToShowCard(card);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ValidateCardException.class)
     public void makeTransferBetweenYourCards(TransferDto transferDto) {
         Card cardFrom = cardsRepository.findByCardIdAndOwnerId(transferDto.getFromCardId(), getUserDetails().getId())
                 .orElseThrow(() -> new CardNotFoundException("Карта не найдена"));
         Card cardTo = cardsRepository.findByCardIdAndOwnerId(transferDto.getToCardId(), getUserDetails().getId())
                 .orElseThrow(() -> new CardNotFoundException("Карта не найдена"));
+        validateCardService.validateExpireDate(cardFrom);
+        validateCardService.validateExpireDate(cardTo);
         History createHistory = newHistory(cardFrom.getLast4(), cardFrom.getOwner().getUsername(), cardTo.getLast4(),
                 cardTo.getOwner().getUsername(), transferDto.getAmount());
         historyRepository.save(createHistory);
@@ -55,7 +59,7 @@ public class UserServ {
 
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ValidateCardException.class)
     public BigDecimal makeTransferToOtherCard(TransferDto transferDto) {
         Card cardFrom = cardsRepository.findByCardIdAndOwnerId(transferDto.getFromCardId(), getUserDetails().getId())
                 .orElseThrow(() -> new CardNotFoundException("Карта не найдена"));
@@ -64,6 +68,8 @@ public class UserServ {
         if (cardTo.getOwner().getId() == getUserDetails().getId()) {
             throw new RuntimeException("Перевод на свою карту недопустим");
         }
+        validateCardService.validateExpireDate(cardFrom);
+        validateCardService.validateExpireDate(cardTo);
         BigDecimal newBalance = validateAndCalculateNewBalance(transferDto.getAmount(), cardFrom, cardTo);
         cardFrom.setBalance(newBalance);
         cardTo.setBalance(cardTo.getBalance().add(transferDto.getAmount()).setScale(2, RoundingMode.HALF_UP));
@@ -86,7 +92,7 @@ public class UserServ {
         return newBalance;
     }
 
-    public UserDetailsImpl getUserDetails() {
+    private UserDetailsImpl getUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (UserDetailsImpl) authentication.getPrincipal();
     }

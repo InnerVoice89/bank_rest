@@ -1,56 +1,92 @@
 package com.example.bankcards.controller;
 
+import com.example.bankcards.dto.BaseResponse;
+import com.example.bankcards.dto.ErrorResponse;
 import com.example.bankcards.dto.ShowCardDto;
 import com.example.bankcards.dto.TransferDto;
 import com.example.bankcards.service.UserServ;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
+@Tag(
+        name = "Контроллер для работы с сервисами пользователей"
+)
 public class UserController {
 
     private final UserServ userServ;
 
     @GetMapping("/show")
+    @Operation(
+            summary = "Сервис для получения информации по картам пользователя"
+    )
     public List<ShowCardDto> getCards() {
         return userServ.getAllCards();
     }
 
     @GetMapping("/show-by-id/{id}")
-    public ShowCardDto getCardById(@PathVariable long id) {
+    @Operation(
+            summary = "Сервис для получения информации по определенной карте пользователя"
+    )
+    public ResponseEntity<?> getCardById(@PathVariable long id) {
         try {
-            return userServ.getCardById(id);
+            ShowCardDto cardDto = userServ.getCardById(id);
+            return ResponseEntity.ok(cardDto);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.badRequest().body(new ErrorResponse(
+                    "Ошибка получения карты : " + e.getMessage()
+                    , LocalDateTime.now()
+            ));
         }
     }
 
     @PostMapping("/transfer-yours")
-    public ResponseEntity<String> transferBetweenCards(@RequestBody TransferDto transferData) {
+    @Operation(
+            summary = "Сервис для перевода между своими картами"
+    )
+    public BaseResponse transferBetweenCards(@RequestBody TransferDto transferData) {
         try {
             userServ.makeTransferBetweenYourCards(transferData);
-            return ResponseEntity.ok("Деньги переведены успешно");
-        }catch(Exception e){
-            log.error("Ошибка перевода ",e);
-           return ResponseEntity.badRequest().body(e.getMessage());
+            return BaseResponse.builder()
+                    .success(true)
+                    .message("Средства успешно переведены")
+                    .build();
+        } catch (Exception e) {
+            log.error("Ошибка перевода ", e);
+            return BaseResponse.builder()
+                    .success(false)
+                    .errorMessage("Ошибка перевода : " + e.getMessage())
+                    .build();
         }
     }
 
     @PostMapping("/transfer-other")
-    public ResponseEntity<String> transferToOtherCard(@RequestBody TransferDto transferData) {
+    @Operation(
+            summary = "Сервис для перевода на карту другого пользователя"
+    )
+    public BaseResponse transferToOtherCard(@RequestBody TransferDto transferData) {
         try {
-           var newBalance= userServ.makeTransferToOtherCard(transferData);
-            return ResponseEntity.ok("Деньги переведены успешно,Ваш баланс составляет : " +newBalance);
-        }catch(Exception e){
-            log.error("Ошибка перевода ",e);
-            return ResponseEntity.badRequest().body("Ошибка перевода! "+e.getMessage());
+            var newBalance = userServ.makeTransferToOtherCard(transferData);
+            return BaseResponse.builder()
+                    .success(true)
+                    .message("Деньги переведены успешно,Ваш баланс составляет : " + newBalance)
+                    .build();
+        } catch (Exception e) {
+            log.error("Ошибка перевода ", e);
+            return BaseResponse.builder()
+                    .success(false)
+                    .errorMessage("Ошибка перевода! " + e.getMessage())
+                    .build();
         }
     }
 
