@@ -10,11 +10,21 @@ REST API для управления банковскими картами, кл
 - Java 17+  
 - Spring Boot 3.x  
 - Spring Data JPA — работа с базой через сущности и репозитории  
-- PostgreSQL  
-- Maven  
+- PostgreSQL   
 - Docker & Docker Compose  
 - Swagger / OpenAPI — автогенерация документации API и тестирование через UI
 - Liquibase
+- Spring Security + JWT — аутентификация и авторизация REST API
+
+---
+
+##   Безопасность
+В проекте реализована JWT-аутентификация на базе Spring Security:
+- Stateless-аутентификация
+- Авторизация запросов по JWT-токену
+- Защита REST-эндпоинтов
+- Открытый доступ к `/auth/**` и Swagger UI
+- Используется `Bearer Token` в заголовке `Authorization`
 
 ---
 
